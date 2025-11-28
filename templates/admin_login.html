@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login — BarbLab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 40px;
+      background: #111;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-header .icon {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+    }
+
+    .login-header .icon i {
+      font-size: 1.8rem;
+      color: #fff;
+    }
+
+    .login-header h2 {
+      color: #fff;
+      margin: 0 0 5px;
+    }
+
+    .login-header p {
+      color: #888;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+    }
+
+    .input-wrapper input {
+      padding-left: 42px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #e74c3c;
+      outline: none;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      width: auto;
+    }
+
+    .toggle-password:hover {
+      color: #e74c3c;
+    }
+
+    .btn-admin-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-admin-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+    }
+
+    .erro {
+      background: rgba(231, 76, 60, 0.15);
+      border: 1px solid #e74c3c;
+      color: #e74c3c;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .back-link a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .back-link a:hover {
+      color: #00b894;
+    }
+
+    .back-link a i {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/">Início</a>
+    <a href="/cadastro">Cadastro</a>
+    <a href="/login">Login</a>
+  </nav>
+</header>
+
+<section class="login-container">
+  <div class="login-header">
+    <div class="icon">
+      <i class="fas fa-user-shield"></i>
+    </div>
+    <h2>Painel Admin</h2>
+    <p>Acesso restrito a administradores</p>
+  </div>
+
+  {% if erro %}
+    <div class="erro">
+      <i class="fas fa-exclamation-circle"></i> {{ erro }}
+    </div>
+  {% endif %}
+
+  <form method="POST" action="/admin-login">
+    <div class="form-group">
+      <label for="usuario">Usuário</label>
+      <div class="input-wrapper">
+        <i class="fas fa-user"></i>
+        <input 
+          type="text" 
+          id="usuario" 
+          name="usuario" 
+          placeholder="Digite seu usuário" 
+          autocomplete="username"
+          required
+        >
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="senha">Senha</label>
+      <div class="input-wrapper">
+        <i class="fas fa-lock"></i>
+        <input 
+          type="password" 
+          id="senha" 
+          name="senha" 
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+          required
+        >
+        <button type="button" class="toggle-password" onclick="togglePassword()">
+          <i class="fas fa-eye" id="toggleIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-admin-login">
+      <i class="fas fa-sign-in-alt"></i>
+      Entrar no Painel
+    </button>
+  </form>
+
+  <div class="back-link">
+    <a href="/"><i class="fas fa-arrow-left"></i> Voltar ao site</a>
+  </div>
+</section>
+
+<footer>© 2025 BarbLab</footer>
+
+<script>
+  function togglePassword() {
+    const input = document.getElementById('senha');
+    const icon = document.getElementById('toggleIcon');
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+</script>
+
+</body>
+</html>

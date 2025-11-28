@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login — BarbLab</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/">Início</a>
+    <a href="/cadastro">Cadastro</a>
+    <a href="/login" class="active">Login</a>
+  </nav>
+</header>
+
+<section class="form-section">
+  <h2>Entrar na sua conta</h2>
+
+  <form id="loginForm">
+    <label for="cpf_login">CPF</label>
+    <input type="text" id="cpf_login" placeholder="000.000.000-00" required>
+
+    <label for="senha_login">Senha</label>
+    <input type="password" id="senha_login" placeholder="Sua senha" required>
+
+    <button type="submit" class="btn">Entrar</button>
+
+    <p id="loginMsg" class="msg"></p>
+
+    <p class="redirect">
+      Ainda não tem conta?
+      <a href="/cadastro">Cadastre-se aqui</a>
+    </p>
+  </form>
+</section>
+
+<footer>© 2025 BarbLab</footer>
+</body>
+</html>

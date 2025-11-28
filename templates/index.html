@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BarbLab - Seu estilo em boas mãos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <style>
+    .hero-content {
+      animation: fadeInUp 1.3s ease forwards;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #000 10%, #0a0a0a 90%);
+      color: #fff;
+      text-align: center;
+      padding: 140px 20px 100px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #bbb;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      background: #00b894;
+      color: #000;
+      text-decoration: none;
+      padding: 14px 34px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 0 8px #00b89466;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cta-btn:hover {
+      background: #00d1a7;
+      box-shadow: 0 0 18px #00d1a766;
+      transform: scale(1.05);
+    }
+
+    .cta-btn.secondary {
+      background: transparent;
+      border: 2px solid #00b894;
+      color: #00b894;
+    }
+
+    .cta-btn.secondary:hover {
+      background: #00b894;
+      color: #000;
+    }
+
+    /* User logged info */
+    .user-welcome {
+      background: #1a1a1a;
+      padding: 15px 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      display: inline-block;
+    }
+
+    .user-welcome span {
+      color: #00b894;
+      font-weight: 600;
+    }
+
+    /* Sobre */
+    .sobre {
+      text-align: center;
+      padding: 80px 20px;
+      background: #111;
+    }
+
+    .sobre h2 {
+      color: #00b894;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    .sobre p {
+      color: #ccc;
+      font-size: 1.1rem;
+      max-width: 750px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Serviços */
+    .servicos {
+      padding: 80px 20px;
+      background: #0e0e0e;
+      text-align: center;
+    }
+
+    .servicos h2 {
+      color: #00b894;
+      margin-bottom: 40px;
+      font-size: 1.8rem;
+    }
+
+    .servico-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .servico {
+      background: #151515;
+      border-radius: 12px;
+      padding: 30px 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      transition: 0.3s;
+      border: 1px solid transparent;
+    }
+
+    .servico:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 20px rgba(0,184,148,0.3);
+      border-color: #00b89444;
+    }
+
+    .servico-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .servico h3 {
+      color: #00b894;
+      margin-bottom: 10px;
+    }
+
+    .servico p {
+      color: #bbb;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .servico .preco {
+      color: #00b894;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 60px 20px;
+      background: #0a0a0a;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #00b894;
+    }
+
+    .stat-label {
+      color: #888;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.3rem; }
+      .hero p { font-size: 1rem; }
+      .stats { gap: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/" class="active">Início</a>
+    <a href="/agendamento">Agendar</a>
+    <span id="navAuth">
+      <a href="/cadastro">Cadastro</a>
+      <a href="/login">Login</a>
+    </span>
+    <a href="/admin-login" class="btn-admin"><i class="fas fa-lock"></i> Admin</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <!-- Mostra se logado -->
+    <div id="userWelcome" class="user-welcome" style="display: none;">
+      <i class="fas fa-user-check"></i> Olá, <span id="userName"></span>!
+    </div>
+
+    <h1>Seu estilo, nossa missão.</h1>
+    <p>Bem-vindo ao BarbLab — um espaço moderno, com profissionais de alto nível e tecnologia que facilita sua vida. Agende online e viva a melhor experiência!</p>
+    
+    <div class="cta-buttons">
+      <a href="/agendamento" class="cta-btn">
+        <i class="fas fa-calendar-check"></i> Agendar Agora
+      </a>
+      <a href="/cadastro" class="cta-btn secondary" id="btnCadastroHero">
+        <i class="fas fa-user-plus"></i> Criar Conta
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats">
+  <div class="stat">
+    <div class="stat-number">500+</div>
+    <div class="stat-label">Clientes Satisfeitos</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">3</div>
+    <div class="stat-label">Barbeiros Experts</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">5★</div>
+    <div class="stat-label">Avaliação Média</div>
+  </div>
+</section>
+
+<!-- Sobre -->
+<section class="sobre">
+  <h2><i class="fas fa-info-circle"></i> Sobre o BarbLab</h2>
+  <p>O BarbLab une tradição e inovação. Nosso compromisso é entregar cortes precisos, barbeiros qualificados e um ambiente acolhedor. Aqui, o cuidado vai além do visual — é uma experiência personalizada do início ao fim.</p>
+</section>
+
+<!-- Serviços -->
+<section class="servicos">
+  <h2><i class="fas fa-cut"></i> Nossos Serviços</h2>
+  <div class="servico-grid">
+    <div class="servico">
+      <div class="servico-icon">✂️</div>
+      <h3>Corte de Cabelo</h3>
+      <p>Do clássico ao moderno, com acabamento impecável.</p>
+      <div class="preco">R$ 35,00</div>
+    </div>
+    <div class="servico">
+      <div class="servico-icon">🧔</div>
+      <h3>Barba Completa</h3>
+      <p>Tratamento, alinhamento e hidratação.</p>
+      <div class="preco">R$ 25,00</div>
+    </div>
+    <div class="servico">
+      <div class="servico-icon">💇‍♂️</div>
+      <h3>Corte + Barba</h3>
+      <p>Pacote completo para visual renovado.</p>
+      <div class="preco">R$ 55,00</div>
+    </div>
+    <div class="servico">
+      <div class="servico-icon">👁️</div>
+      <h3>Sobrancelha</h3>
+      <p>Acabamento preciso para olhar marcante.</p>
+      <div class="preco">R$ 15,00</div>
+    </div>
+    <div class="servico">
+      <div class="servico-icon">🎨</div>
+      <h3>Pigmentação</h3>
+      <p>Preenchimento e definição profissional.</p>
+      <div class="preco">R$ 80,00</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>© 2025 BarbLab — Todos os direitos reservados.</p>
+  <p>Desenvolvido com 💚 por catib.</p>
+</footer>
+
+<script>
+  // Verifica se está logado e atualiza UI
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const res = await fetch('/api/me');
+      const user = await res.json();
+      
+      if (user && user.nome) {
+        // Mostra welcome
+        document.getElementById('userWelcome').style.display = 'inline-block';
+        document.getElementById('userName').textContent = user.nome.split(' ')[0];
+        
+        // Troca botões do nav
+        document.getElementById('navAuth').innerHTML = `
+          <a href="/meus-agendamentos">Meus Agendamentos</a>
+          <a href="#" id="btnLogout">Sair</a>
+        `;
+        
+        // Troca botão hero
+        document.getElementById('btnCadastroHero').href = '/meus-agendamentos';
+        document.getElementById('btnCadastroHero').innerHTML = '<i class="fas fa-list"></i> Meus Agendamentos';
+        
+        // Logout
+        document.getElementById('btnLogout')?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await fetch('/api/logout', { method: 'POST' });
+          window.location.reload();
+        });
+      }
+    } catch (e) {
+      console.log('Usuário não logado');
+    }
+  });
+</script>
+
+</body>
+</html>

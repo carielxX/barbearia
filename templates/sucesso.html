@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sucesso! — BarbLab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .sucesso-container {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .sucesso-card {
+      background: #111;
+      border-radius: 20px;
+      padding: 50px 40px;
+      text-align: center;
+      max-width: 500px;
+      box-shadow: 0 0 40px rgba(0, 184, 148, 0.2);
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sucesso-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #00b894, #00d1a7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 25px;
+      animation: scaleIn 0.5s ease 0.2s both;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .sucesso-icon i {
+      font-size: 3rem;
+      color: #fff;
+    }
+
+    .sucesso-card h1 {
+      color: #00b894;
+      font-size: 2rem;
+      margin-bottom: 15px;
+    }
+
+    .sucesso-card p {
+      color: #aaa;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .sucesso-card .destaque {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .sucesso-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .sucesso-actions a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 25px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #00b894;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #00d1a7;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #333;
+      color: #ccc;
+    }
+
+    .btn-secondary:hover {
+      border-color: #00b894;
+      color: #00b894;
+    }
+
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #00b894;
+      animation: confetti-fall 3s ease-in-out infinite;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/">Início</a>
+    <a href="/agendamento">Agendar</a>
+    <a href="/meus-agendamentos">Meus Agendamentos</a>
+  </nav>
+</header>
+
+<!-- Confetti -->
+<div class="confetti" id="confetti"></div>
+
+<div class="sucesso-container">
+  <div class="sucesso-card">
+    <div class="sucesso-icon">
+      <i class="fas fa-check"></i>
+    </div>
+    
+    <h1>Tudo certo!</h1>
+    
+    <p>Seu <span class="destaque">agendamento foi confirmado</span> com sucesso!</p>
+    <p>Você receberá uma confirmação por e-mail em breve.</p>
+    
+    <div class="sucesso-actions">
+      <a href="/meus-agendamentos" class="btn-primary">
+        <i class="fas fa-calendar-alt"></i>
+        Ver meus agendamentos
+      </a>
+      <a href="/agendamento" class="btn-secondary">
+        <i class="fas fa-plus"></i>
+        Fazer novo agendamento
+      </a>
+      <a href="/" class="btn-secondary">
+        <i class="fas fa-home"></i>
+        Voltar ao início
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 BarbLab</footer>
+
+<script>
+  // Gera confetti
+  const confettiContainer = document.getElementById('confetti');
+  const colors = ['#00b894', '#00d1a7', '#fff', '#f39c12', '#e74c3c'];
+  
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 3 + 's';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    confettiContainer.appendChild(piece);
+  }
+
+  // Remove confetti após 5 segundos
+  setTimeout(() => {
+    confettiContainer.style.opacity = '0';
+    setTimeout(() => confettiContainer.remove(), 1000);
+  }, 5000);
+</script>
+
+</body>
+</html>

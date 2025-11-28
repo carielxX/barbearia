@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meus Agendamentos — BarbLab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <style>
+    .page-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .page-header h2 {
+      color: #00b894;
+      margin: 0;
+    }
+
+    .btn-novo {
+      background: #00b894;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .btn-novo:hover {
+      background: #00d1a7;
+      transform: translateY(-2px);
+    }
+
+    /* Filtros */
+    .filtros {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .filtro-btn {
+      padding: 10px 18px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .filtro-btn:hover {
+      border-color: #00b894;
+      color: #00b894;
+    }
+
+    .filtro-btn.active {
+      background: #00b894;
+      border-color: #00b894;
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .agendamentos-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .agendamento-card {
+      background: #111;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #333;
+      transition: all 0.3s;
+    }
+
+    .agendamento-card:hover {
+      transform: translateX(5px);
+    }
+
+    .agendamento-card.status-pendente { border-left-color: #f39c12; }
+    .agendamento-card.status-confirmado { border-left-color: #00b894; }
+    .agendamento-card.status-concluido { border-left-color: #3498db; }
+    .agendamento-card.status-cancelado { border-left-color: #e74c3c; opacity: 0.7; }
+
+    .ag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ag-data {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .ag-status {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .ag-status.pendente { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+    .ag-status.confirmado { background: rgba(0, 184, 148, 0.2); color: #00b894; }
+    .ag-status.concluido { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+    .ag-status.cancelado { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+
+    .ag-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .ag-info {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .ag-info strong {
+      color: #ccc;
+    }
+
+    .ag-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 15px;
+      border-top: 1px solid #222;
+    }
+
+    .btn-cancelar {
+      background: transparent;
+      border: 1px solid #e74c3c;
+      color: #e74c3c;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-cancelar:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    /* Estados vazios e loading */
+    .estado-vazio {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .estado-vazio i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .estado-vazio h3 {
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .estado-vazio p {
+      margin-bottom: 25px;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+
+    .loading-state i {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #00b894;
+    }
+
+    /* Modal de cancelamento */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #111;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-content h3 {
+      color: #e74c3c;
+      margin-bottom: 15px;
+    }
+
+    .modal-content p {
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .modal-content textarea {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .modal-buttons button {
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-cancelar {
+      background: #e74c3c;
+      border: none;
+      color: #fff;
+    }
+
+    .btn-modal-cancelar:hover {
+      background: #c0392b;
+    }
+
+    .btn-modal-voltar {
+      background: transparent;
+      border: 1px solid #444;
+      color: #aaa;
+    }
+
+    .btn-modal-voltar:hover {
+      border-color: #888;
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      .ag-body {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/">Início</a>
+    <a href="/agendamento">Agendar</a>
+    <a href="/meus-agendamentos" class="active">Meus Agendamentos</a>
+    <a href="#" id="btnLogout">Sair</a>
+  </nav>
+</header>
+
+<main class="page-container">
+  <div class="page-header">
+    <h2><i class="fas fa-calendar-alt"></i> Meus Agendamentos</h2>
+    <a href="/agendamento" class="btn-novo">
+      <i class="fas fa-plus"></i> Novo Agendamento
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <button class="filtro-btn active" data-filtro="todos">Todos</button>
+    <button class="filtro-btn" data-filtro="futuros">Próximos</button>
+    <button class="filtro-btn" data-filtro="passados">Anteriores</button>
+    <button class="filtro-btn" data-filtro="cancelado">Cancelados</button>
+  </div>
+
+  <!-- Lista de agendamentos -->
+  <div id="listaAgendamentos" class="agendamentos-lista">
+    <div class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Carregando seus agendamentos...</p>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de Cancelamento -->
+<div class="modal-overlay" id="modalCancelar">
+  <div class="modal-content">
+    <h3><i class="fas fa-exclamation-triangle"></i> Cancelar Agendamento</h3>
+    <p>Tem certeza que deseja cancelar este agendamento?</p>
+    <textarea id="motivoCancelamento" placeholder="Motivo do cancelamento (opcional)" rows="3"></textarea>
+    <div class="modal-buttons">
+      <button class="btn-modal-voltar" id="btnModalVoltar">Voltar</button>
+      <button class="btn-modal-cancelar" id="btnModalConfirmar">Confirmar Cancelamento</button>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 BarbLab</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const lista = document.getElementById('listaAgendamentos');
+  const filtros = document.querySelectorAll('.filtro-btn');
+  const modal = document.getElementById('modalCancelar');
+  const btnModalVoltar = document.getElementById('btnModalVoltar');
+  const btnModalConfirmar = document.getElementById('btnModalConfirmar');
+  const motivoInput = document.getElementById('motivoCancelamento');
+  
+  let agendamentos = [];
+  let filtroAtual = 'todos';
+  let agendamentoParaCancelar = null;
+
+  // Verifica autenticação
+  const meRes = await fetch('/api/me');
+  const me = await meRes.json();
+  if (!me) {
+    window.location.href = '/login';
+    return;
+  }
+
+  // Carrega agendamentos
+  async function carregarAgendamentos() {
+    lista.innerHTML = `
+      <div class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Carregando...</p>
+      </div>
+    `;
+
+    try {
+      const res = await fetch(`/api/meus-agendamentos?periodo=${filtroAtual === 'cancelado' ? 'todos' : filtroAtual}`);
+      const data = await res.json();
+      agendamentos = data.agendamentos || [];
+      renderizarAgendamentos();
+    } catch (err) {
+      lista.innerHTML = `
+        <div class="estado-vazio">
+          <i class="fas fa-exclamation-circle"></i>
+          <h3>Erro ao carregar</h3>
+          <p>Não foi possível carregar seus agendamentos.</p>
+        </div>
+      `;
+    }
+  }
+
+  // Renderiza lista
+  function renderizarAgendamentos() {
+    let filtrados = agendamentos;
+
+    // Filtra por status se necessário
+    if (filtroAtual === 'cancelado') {
+      filtrados = agendamentos.filter(ag => ag.status === 'cancelado');
+    }
+
+    if (filtrados.length === 0) {
+      lista.innerHTML = `
+        <div class="estado-vazio">
+          <i class="fas fa-calendar-times"></i>
+          <h3>Nenhum agendamento encontrado</h3>
+          <p>Você ainda não possui agendamentos ${filtroAtual !== 'todos' ? 'nesta categoria' : ''}.</p>
+          <a href="/agendamento" class="btn-novo">
+            <i class="fas fa-plus"></i> Fazer um agendamento
+          </a>
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = filtrados.map(ag => {
+      const podeCancelar = ag.status !== 'cancelado' && ag.status !== 'concluido';
+      const dataFormatada = new Date(ag.data + 'T00:00:00').toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long'
+      });
+
+      return `
+        <div class="agendamento-card status-${ag.status}">
+          <div class="ag-header">
+            <span class="ag-data">
+              <i class="fas fa-calendar"></i> ${dataFormatada} às ${ag.horario}
+            </span>
+            <span class="ag-status ${ag.status}">${ag.status}</span>
+          </div>
+          <div class="ag-body">
+            <div class="ag-info">
+              <strong><i class="fas fa-cut"></i> Serviço:</strong><br>
+              ${ag.servico_nome || ag.servico}
+            </div>
+            <div class="ag-info">
+              <strong><i class="fas fa-user"></i> Barbeiro:</strong><br>
+              ${ag.barbeiro_nome || ag.barbeiro}
+            </div>
+            <div class="ag-info">
+              <strong><i class="fas fa-tag"></i> Valor:</strong><br>
+              ${ag.preco ? 'R$ ' + ag.preco.toFixed(2) : '-'}
+            </div>
+          </div>
+          ${podeCancelar ? `
+            <div class="ag-footer">
+              <button class="btn-cancelar" data-id="${ag.id}">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Event listeners para cancelar
+    lista.querySelectorAll('.btn-cancelar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        agendamentoParaCancelar = btn.dataset.id;
+        motivoInput.value = '';
+        modal.classList.add('show');
+      });
+    });
+  }
+
+  // Filtros
+  filtros.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtros.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filtroAtual = btn.dataset.filtro;
+      carregarAgendamentos();
+    });
+  });
+
+  // Modal
+  btnModalVoltar.addEventListener('click', () => {
+    modal.classList.remove('show');
+    agendamentoParaCancelar = null;
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      agendamentoParaCancelar = null;
+    }
+  });
+
+  btnModalConfirmar.addEventListener('click', async () => {
+    if (!agendamentoParaCancelar) return;
+
+    btnModalConfirmar.disabled = true;
+    btnModalConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
+
+    try {
+      const res = await fetch(`/api/agendamento/${agendamentoParaCancelar}/cancelar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ motivo: motivoInput.value })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        modal.classList.remove('show');
+        agendamentoParaCancelar = null;
+        carregarAgendamentos();
+        
+        // Toast de sucesso
+        if (window.BarbLab?.Toast) {
+          window.BarbLab.Toast.success('Agendamento cancelado com sucesso');
+        }
+      } else {
+        alert(data.error || 'Erro ao cancelar agendamento');
+      }
+    } catch (err) {
+      alert('Erro de conexão');
+    }
+
+    btnModalConfirmar.disabled = false;
+    btnModalConfirmar.innerHTML = 'Confirmar Cancelamento';
+  });
+
+  // Logout
+  document.getElementById('btnLogout')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/';
+  });
+
+  // Carrega inicial
+  carregarAgendamentos();
+});
+</script>
+
+</body>
+</html>

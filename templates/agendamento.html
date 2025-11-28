@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agendamento — BarbLab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <style>
+    .form-section {
+      max-width: 550px;
+    }
+
+    .welcome-box {
+      background: linear-gradient(135deg, #00b894, #00a885);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .welcome-box h3 {
+      color: #fff;
+      margin: 0 0 5px;
+      font-size: 1.2rem;
+    }
+
+    .welcome-box p {
+      color: rgba(255,255,255,0.85);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    .form-group label .required {
+      color: #ff7675;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 500px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    /* Select estilizado */
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 35px;
+      cursor: pointer;
+    }
+
+    select:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Resumo do serviço */
+    .resumo-servico {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .resumo-servico.show {
+      display: block;
+    }
+
+    .resumo-servico h4 {
+      color: #00b894;
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+    }
+
+    .resumo-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #222;
+      font-size: 0.9rem;
+    }
+
+    .resumo-item:last-child {
+      border-bottom: none;
+    }
+
+    .resumo-item span:first-child {
+      color: #888;
+    }
+
+    .resumo-item span:last-child {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .resumo-total {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #00b894;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+    }
+
+    .resumo-total span:last-child {
+      color: #00b894;
+      font-weight: 700;
+    }
+
+    /* Horários grid */
+    .horarios-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .horarios-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .horario-btn {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .horario-btn:hover {
+      border-color: #00b894;
+      background: #222;
+    }
+
+    .horario-btn.selected {
+      background: #00b894;
+      border-color: #00b894;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .horario-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .horarios-loading,
+    .horarios-empty {
+      text-align: center;
+      padding: 20px;
+      color: #888;
+    }
+
+    .horarios-empty {
+      color: #ff7675;
+    }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Links */
+    .form-links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    .form-links a {
+      color: #00b894;
+      text-decoration: none;
+    }
+
+    .form-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Feedback */
+    .feedback {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      color: #888;
+    }
+
+    .feedback.error { color: #ff7675; }
+    .feedback.success { color: #00b894; }
+  </style>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="logo">Barb<span>Lab</span></div>
+  <nav>
+    <a href="/">Início</a>
+    <a href="/agendamento" class="active">Agendar</a>
+    <a href="/meus-agendamentos">Meus Agendamentos</a>
+    <a href="#" id="btnLogout">Sair</a>
+  </nav>
+</header>
+
+<section class="form-section">
+  <!-- Welcome -->
+  <div class="welcome-box">
+    <h3><i class="fas fa-hand-sparkles"></i> Olá, <span id="welcomeMsg">Cliente</span>!</h3>
+    <p>Escolha o serviço e horário ideal para você</p>
+  </div>
+
+  <h2><i class="fas fa-calendar-check"></i> Agendar Horário</h2>
+
+  <form id="formAgendamento">
+    <!-- Serviço -->
+    <div class="form-group">
+      <label for="servico">Serviço <span class="required">*</span></label>
+      <select id="servico" required>
+        <option value="">Carregando serviços...</option>
+      </select>
+    </div>
+
+    <!-- Barbeiro -->
+    <div class="form-group">
+      <label for="barbeiro">Barbeiro <span class="required">*</span></label>
+      <select id="barbeiro" required>
+        <option value="">Carregando barbeiros...</option>
+      </select>
+    </div>
+
+    <!-- Data e Horário -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="data_ag">Data <span class="required">*</span></label>
+        <input 
+          type="date" 
+          id="data_ag" 
+          required
+        >
+        <small class="feedback" id="dataFeedback"></small>
+      </div>
+
+      <div class="form-group">
+        <label>Horário <span class="required">*</span></label>
+        <input type="hidden" id="horario" required>
+        <div id="horariosContainer">
+          <p class="horarios-loading">Selecione data e barbeiro</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="resumo-servico" id="resumoServico">
+      <h4><i class="fas fa-receipt"></i> Resumo do Agendamento</h4>
+      <div class="resumo-item">
+        <span>Serviço:</span>
+        <span id="resumoServicoNome">-</span>
+      </div>
+      <div class="resumo-item">
+        <span>Barbeiro:</span>
+        <span id="resumoBarbeiro">-</span>
+      </div>
+      <div class="resumo-item">
+        <span>Data:</span>
+        <span id="resumoData">-</span>
+      </div>
+      <div class="resumo-item">
+        <span>Horário:</span>
+        <span id="resumoHorario">-</span>
+      </div>
+      <div class="resumo-item">
+        <span>Duração:</span>
+        <span id="resumoDuracao">-</span>
+      </div>
+      <div class="resumo-total">
+        <span>Total:</span>
+        <span id="resumoPreco">R$ 0,00</span>
+      </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="form-group">
+      <label for="obs">Observações (opcional)</label>
+      <textarea 
+        id="obs" 
+        placeholder="Alguma preferência ou informação adicional?"
+        rows="3"
+        maxlength="300"
+      ></textarea>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-submit" id="btnAgendar" disabled>
+      <i class="fas fa-calendar-check"></i>
+      <span>Confirmar Agendamento</span>
+    </button>
+
+    <div id="msg" class="msg" style="display: none;"></div>
+
+    <div class="form-links">
+      <a href="/meus-agendamentos"><i class="fas fa-list"></i> Ver meus agendamentos</a>
+      <a href="/"><i class="fas fa-home"></i> Voltar ao início</a>
+    </div>
+  </form>
+</section>
+
+<footer>© 2025 BarbLab</footer>
+
+<script>
+// Script específico para agendamento (complementa app.js)
+document.addEventListener('DOMContentLoaded', () => {
+  const servicoSelect = document.getElementById('servico');
+  const barbeiroSelect = document.getElementById('barbeiro');
+  const dataInput = document.getElementById('data_ag');
+  const horariosContainer = document.getElementById('horariosContainer');
+  const horarioInput = document.getElementById('horario');
+  const btnAgendar = document.getElementById('btnAgendar');
+  const resumoDiv = document.getElementById('resumoServico');
+
+  let servicosData = [];
+  let barbeirosData = [];
+  let horarioSelecionado = null;
+
+  // Atualiza resumo
+  function atualizarResumo() {
+    const servico = servicosData.find(s => s.id === servicoSelect.value);
+    const barbeiro = barbeirosData.find(b => b.id === barbeiroSelect.value);
+    
+    if (servico && barbeiro && dataInput.value && horarioSelecionado) {
+      document.getElementById('resumoServicoNome').textContent = servico.nome;
+      document.getElementById('resumoBarbeiro').textContent = barbeiro.nome;
+      document.getElementById('resumoData').textContent = new Date(dataInput.value + 'T00:00:00').toLocaleDateString('pt-BR');
+      document.getElementById('resumoHorario').textContent = horarioSelecionado;
+      document.getElementById('resumoDuracao').textContent = servico.duracao + ' min';
+      document.getElementById('resumoPreco').textContent = 'R$ ' + servico.preco.toFixed(2);
+      resumoDiv.classList.add('show');
+      btnAgendar.disabled = false;
+    } else {
+      resumoDiv.classList.remove('show');
+      btnAgendar.disabled = true;
+    }
+  }
+
+  // Carrega horários disponíveis
+  async function carregarHorarios() {
+    if (!dataInput.value || !barbeiroSelect.value) {
+      horariosContainer.innerHTML = '<p class="horarios-loading">Selecione data e barbeiro</p>';
+      return;
+    }
+
+    horariosContainer.innerHTML = '<p class="horarios-loading"><i class="fas fa-spinner fa-spin"></i> Carregando horários...</p>';
+    horarioSelecionado = null;
+    horarioInput.value = '';
+    atualizarResumo();
+
+    try {
+      const params = new URLSearchParams({
+        data: dataInput.value,
+        barbeiro: barbeiroSelect.value,
+        servico: servicoSelect.value || ''
+      });
+
+      const res = await fetch(`/api/horarios-disponiveis?${params}`);
+      const data = await res.json();
+
+      if (data.horarios && data.horarios.length > 0) {
+        horariosContainer.innerHTML = '<div class="horarios-grid">' +
+          data.horarios.map(h => `
+            <button type="button" class="horario-btn" data-horario="${h}">${h}</button>
+          `).join('') +
+          '</div>';
+
+        // Event listeners para botões de horário
+        horariosContainer.querySelectorAll('.horario-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            // Remove seleção anterior
+            horariosContainer.querySelectorAll('.horario-btn').forEach(b => b.classList.remove('selected'));
+            // Seleciona atual
+            btn.classList.add('selected');
+            horarioSelecionado = btn.dataset.horario;
+            horarioInput.value = horarioSelecionado;
+            atualizarResumo();
+          });
+        });
+      } else {
+        horariosContainer.innerHTML = `<p class="horarios-empty">
+          <i class="fas fa-calendar-times"></i> 
+          ${data.message || 'Nenhum horário disponível para esta data'}
+        </p>`;
+      }
+    } catch (err) {
+      horariosContainer.innerHTML = '<p class="horarios-empty"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar horários</p>';
+    }
+  }
+
+  // Event listeners
+  servicoSelect.addEventListener('change', () => {
+    carregarHorarios();
+    atualizarResumo();
+  });
+
+  barbeiroSelect.addEventListener('change', () => {
+    carregarHorarios();
+    atualizarResumo();
+  });
+
+  dataInput.addEventListener('change', carregarHorarios);
+
+  // Define data mínima como hoje
+  const hoje = new Date().toISOString().split('T')[0];
+  dataInput.min = hoje;
+  dataInput.value = hoje;
+});
+</script>
+
+</body>
+</html>
