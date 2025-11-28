@@ -31,3 +31,6 @@ flask cleanup-logs
 
 # Listar admins
 flask list-admins
+////
+# Caso de algum erro
+feche e abra o vscode e rode denovo os comandos principais, caso o erro persista, nos contate por email(carlosdaniellopesdesouzati@gmail.com), e informe-nos o que deseja que seja alterado.
